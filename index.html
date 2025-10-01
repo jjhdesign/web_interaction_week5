@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>카드 뒤집기 & 섞기</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 전체 콘텐츠를 가로 가운데 정렬 */
+        min-height: 100vh;
+        justify-content: center;
+        padding: 20px;
+        background-color: #000000;
+        background-image: url("1.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 75%;
+        background-attachment: fixed;
+        overflow: hidden;
+      }
+
+      .secret {
+        font-size: 0.5vw; /* '설마 내가 걸리겠어?' 멘트의 폰트 크기 */
+        line-height: 1.1; /* 멘트의 줄 간격 조절 */
+        padding-top: 0.2vw;
+      }
+      .controls {
+        margin-bottom: 13%;
+        margin-top: -1%;
+        display: flex;
+        flex-direction: column;
+        /* 이 부분이 핵심: 좌측 정렬 */
+        align-self: flex-start;
+        /* body의 padding을 고려하여 왼쪽 여백 설정 */
+        margin-left: 20px;
+        padding-bottom: 6%;
+      }
+
+      .controls p {
+        text-align: left; /* 인라인 스타일을 CSS로 옮김 */
+        color: white;
+        font-size: 3vw;
+        margin: 0 10vw 0; /* 단락과 버튼 사이 간격 조정 */
+      }
+
+      .card-container-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: 4vw;
+        column-gap: 2%;
+        justify-content: center;
+        width: 65%;
+        margin-top: -14%;
+      }
+      .card-container {
+        width: 10vmin;
+        height: 10vmin;
+        perspective: 1000px;
+        cursor: pointer;
+      }
+
+      .card {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+      }
+
+      .card.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        width: 100%;
+        height: 150%; /* 카드의 높이보다 여유 있게 설정 */
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column; /* 추가: 자식 요소를 세로로 정렬 */
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-size: 1vw; /* 전체 폰트 크기를 조금 더 키워서 이름이 잘 보이게 */
+        text-align: center; /* 텍스트를 가운데 정렬 */
+        line-height: 1.2; /* 줄 간격 조절 */
+        padding: 5px; /* 내부 여백을 추가하여 텍스트가 가장자리에 붙지 않도록 */
+        box-sizing: border-box; /* 패딩이 너비/높이에 포함되도록 설정 */
+      }
+
+      .card-front {
+        background: rgb(255, 255, 255);
+        color: #333;
+        transform: rotateY(0deg);
+        /* Add these lines to make the image fill the card */
+        background-image: url("2.png"); /* Your image file */
+        background-size: 170%;
+        background-position: center; /* Centers the image */
+        background-repeat: no-repeat; /* Prevents the image from repeating */
+      }
+
+      .card-back {
+        background: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
+        transform: rotateY(180deg);
+        background-image: url("3.png"); /* Your image file */
+        background-size: cover;
+        background-position: center; /* Centers the image */
+        background-repeat: no-repeat; /* Prevents the image from repeating */
+      }
+
+      button {
+        padding: 0.7vw 20px;
+        margin-left: 17%;
+        margin-top: 2.5%;
+        margin-bottom: 10%;
+        width: 20%;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls">
+      <p>질문에 대답할 사람을 뽑아봅시다</p>
+      <button id="shuffle-button">카드 섞기</button>
+    </div>
+    <div class="card-container-wrapper"></div>
+
+    <script>
+      const names =
+        "강연우 김노현 김민주 김서연 김소영 김아현 김유진 김채영 김채은 민서 박세연 응우옌비엣호안 이슬비 이예림 장성주 장자윤 정세원 정유진 정재현 조진우 하지민 한평강 박지원";
+      const nameList = names.split(" ");
+      const cardWrapper = document.querySelector(".card-container-wrapper");
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function renderCards(list) {
+        cardWrapper.innerHTML = "";
+        list.forEach((name) => {
+          const cardContainer = document.createElement("div");
+          cardContainer.classList.add("card-container");
+
+          const card = document.createElement("div");
+          card.classList.add("card");
+
+          // '정재현'일 경우에만 특별한 텍스트를 추가
+          if (name === "정재현") {
+            card.innerHTML = `
+        <div class="card-face card-front"></div>
+        <div class="card-face card-back">${name} <br> <span class="secret">설마 내가 걸리겠어?</span></div>
+      `;
+          } else {
+            card.innerHTML = `
+        <div class="card-face card-front"></div>
+        <div class="card-face card-back">${name}</div>
+      `;
+          }
+
+          card.addEventListener("click", () => {
+            card.classList.toggle("flipped");
+          });
+
+          cardContainer.appendChild(card);
+          cardWrapper.appendChild(cardContainer);
+        });
+      }
+      const shuffleButton = document.getElementById("shuffle-button");
+      shuffleButton.addEventListener("click", () => {
+        const allCards = document.querySelectorAll(".card");
+        allCards.forEach((card) => card.classList.remove("flipped"));
+
+        shuffleArray(nameList);
+        renderCards(nameList);
+      });
+
+      renderCards(nameList);
+    </script>
+  </body>
+</html>
