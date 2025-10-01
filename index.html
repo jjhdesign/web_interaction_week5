@@ -8,10 +8,9 @@
       body {
         display: flex;
         flex-direction: column;
-        align-items: center; /* 전체 콘텐츠를 가로 가운데 정렬 */
-        min-height: 100vh;
         justify-content: center;
-        padding: 20px;
+        align-items: center;
+        min-height: 100vh;
         background-color: #000000;
         background-image: url("1.png");
         background-repeat: no-repeat;
@@ -21,28 +20,46 @@
         overflow: hidden;
       }
 
-      .secret {
-        font-size: 0.5vw; /* '설마 내가 걸리겠어?' 멘트의 폰트 크기 */
-        line-height: 1.1; /* 멘트의 줄 간격 조절 */
-        padding-top: 0.2vw;
-      }
-      .controls {
-        margin-bottom: 13%;
-        margin-top: -1%;
+      /* 메인 레이아웃을 위한 컨테이너 */
+      .main-layout {
         display: flex;
         flex-direction: column;
-        /* 이 부분이 핵심: 좌측 정렬 */
-        align-self: flex-start;
-        /* body의 padding을 고려하여 왼쪽 여백 설정 */
-        margin-left: 20px;
-        padding-bottom: 6%;
+        align-items: center;
+        width: 100%;
+        max-width: 1200px; /* 최대 너비를 지정하여 너무 커지지 않게 합니다 */
+        margin-top: -10%;
+      }
+
+      .controls {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        padding: 20px 0;
+        margin-bottom: 15%; /* 카드 컨테이너와의 간격 */
       }
 
       .controls p {
-        text-align: left; /* 인라인 스타일을 CSS로 옮김 */
         color: white;
         font-size: 3vw;
-        margin: 0 10vw 0; /* 단락과 버튼 사이 간격 조정 */
+        margin: 0;
+        text-align: left;
+      }
+
+      button {
+        padding: 0.7vw 20px;
+        margin-top: 1.5%;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #0056b3;
       }
 
       .card-container-wrapper {
@@ -51,8 +68,7 @@
         row-gap: 4vw;
         column-gap: 2%;
         justify-content: center;
-        width: 65%;
-        margin-top: -14%;
+        width: 90%;
       }
       .card-container {
         width: 10vmin;
@@ -76,69 +92,56 @@
       .card-face {
         position: absolute;
         width: 100%;
-        height: 150%; /* 카드의 높이보다 여유 있게 설정 */
+        height: 150%;
         backface-visibility: hidden;
         display: flex;
-        flex-direction: column; /* 추가: 자식 요소를 세로로 정렬 */
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         font-weight: bold;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        font-size: 1vw; /* 전체 폰트 크기를 조금 더 키워서 이름이 잘 보이게 */
-        text-align: center; /* 텍스트를 가운데 정렬 */
-        line-height: 1.2; /* 줄 간격 조절 */
-        padding: 5px; /* 내부 여백을 추가하여 텍스트가 가장자리에 붙지 않도록 */
-        box-sizing: border-box; /* 패딩이 너비/높이에 포함되도록 설정 */
+        font-size: 1vw;
+        text-align: center;
+        line-height: 1.2;
+        padding: 5px;
+        box-sizing: border-box;
       }
 
       .card-front {
         background: rgb(255, 255, 255);
         color: #333;
         transform: rotateY(0deg);
-        /* Add these lines to make the image fill the card */
-        background-image: url("2.png"); /* Your image file */
+        background-image: url("2.png");
         background-size: 170%;
-        background-position: center; /* Centers the image */
-        background-repeat: no-repeat; /* Prevents the image from repeating */
+        background-position: center;
+        background-repeat: no-repeat;
       }
 
       .card-back {
         background: rgb(255, 255, 255);
         color: rgb(0, 0, 0);
         transform: rotateY(180deg);
-        background-image: url("3.png"); /* Your image file */
+        background-image: url("3.png");
         background-size: cover;
-        background-position: center; /* Centers the image */
-        background-repeat: no-repeat; /* Prevents the image from repeating */
+        background-position: center;
+        background-repeat: no-repeat;
       }
 
-      button {
-        padding: 0.7vw 20px;
-        margin-left: 17%;
-        margin-top: 2.5%;
-        margin-bottom: 10%;
-        width: 20%;
-        font-size: 16px;
-        cursor: pointer;
-        border: none;
-        border-radius: 5px;
-        background-color: #007bff;
-        color: white;
-        transition: background-color 0.3s;
-      }
-
-      button:hover {
-        background-color: #0056b3;
+      .secret {
+        font-size: 0.5vw;
+        line-height: 1.1;
       }
     </style>
   </head>
   <body>
-    <div class="controls">
-      <p>질문에 대답할 사람을 뽑아봅시다</p>
-      <button id="shuffle-button">카드 섞기</button>
+    <div class="main-layout">
+      <div class="controls">
+        <p>질문에 대답할 사람을 뽑아봅시다</p>
+        <button id="shuffle-button">카드 섞기</button>
+      </div>
+      <div class="card-container-wrapper"></div>
     </div>
-    <div class="card-container-wrapper"></div>
 
     <script>
       const names =
@@ -162,17 +165,19 @@
           const card = document.createElement("div");
           card.classList.add("card");
 
-          // '정재현'일 경우에만 특별한 텍스트를 추가
           if (name === "정재현") {
             card.innerHTML = `
-        <div class="card-face card-front"></div>
-        <div class="card-face card-back">${name} <br> <span class="secret">설마 내가 걸리겠어?</span></div>
-      `;
+              <div class="card-face card-front"></div>
+              <div class="card-face card-back">
+                <span>${name}</span>
+                <span class="secret">설마 내가 걸리겠어?</span>
+              </div>
+            `;
           } else {
             card.innerHTML = `
-        <div class="card-face card-front"></div>
-        <div class="card-face card-back">${name}</div>
-      `;
+              <div class="card-face card-front"></div>
+              <div class="card-face card-back">${name}</div>
+            `;
           }
 
           card.addEventListener("click", () => {
@@ -183,11 +188,11 @@
           cardWrapper.appendChild(cardContainer);
         });
       }
+
       const shuffleButton = document.getElementById("shuffle-button");
       shuffleButton.addEventListener("click", () => {
         const allCards = document.querySelectorAll(".card");
         allCards.forEach((card) => card.classList.remove("flipped"));
-
         shuffleArray(nameList);
         renderCards(nameList);
       });
